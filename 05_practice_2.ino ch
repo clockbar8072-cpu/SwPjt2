@@ -1,0 +1,53 @@
+const int LED_PIN = 7; 
+
+int g_period = 100; 
+int g_duty = 0;      
+
+void set_period(int period) {
+  g_period = period;
+}
+
+void set_duty(int duty) {
+  g_duty = duty;
+}
+
+void run_pwm() {
+  int on_time = (long)g_period * g_duty / 100; // 주기 * 밝기(%)
+  int off_time = g_period - on_time;
+
+  if (on_time > 0) {
+    digitalWrite(LED_PIN, LOW); 
+    delayMicroseconds(on_time);
+  }
+  
+  if (off_time > 0) {
+    digitalWrite(LED_PIN, HIGH); 
+    delayMicroseconds(off_time);
+  }
+}
+
+void setup() {
+  pinMode(LED_PIN, OUTPUT); // 시작, 7번 핀 및 출력
+  
+  set_period(1000); // period 설정 (10ms, 1ms, 0.1ms)
+}
+
+void loop() {
+  for (int d = 0; d <= 100; d++) {
+    set_duty(d); // 0~100까지 증가, 밝기 역할
+    
+    unsigned long start_time = micros(); // micros -> 마이크로초 스톱워치(ms)
+    while (micros() - start_time < 5000) { // 5000us = 5ms 동안 while문 반복
+      run_pwm();
+    }
+  }
+
+  for (int d = 100; d >= 0; d--) {
+    set_duty(d); // 100~0까지 감소
+    
+    unsigned long start_time = micros();
+    while (micros() - start_time < 5000) { 
+      run_pwm();
+    }
+  }
+}
